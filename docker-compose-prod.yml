@@ -9,7 +9,7 @@ services:
     depends_on:
       - "backend"
     expose:
-      - '4000'
+      - '5000'
   # Serves as a UI -> Kafka bridge and validates users, ensure published events match system spec, etc.
   backend:
     build:
@@ -20,7 +20,7 @@ services:
     depends_on:
       - "database"
     expose:
-      - '4001'
+      - '5001'
   # Postgres DB
   database:
     image: "postgres"
