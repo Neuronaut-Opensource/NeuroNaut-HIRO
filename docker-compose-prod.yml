@@ -1,0 +1,43 @@
+services:
+  # UI for admins to manage keys, users, etc
+  ui:
+    build:
+      context: .
+      dockerfile: Docker/UI/Dockerfile.prod
+    image: inventory/ui
+    scale: 2
+    depends_on:
+      - "backend"
+    expose:
+      - '4000'
+  # Serves as a UI -> Kafka bridge and validates users, ensure published events match system spec, etc.
+  backend:
+    build:
+      context: .
+      dockerfile: Docker/Backend/Dockerfile.prod
+    image: inventory/backend
+    scale: 2
+    depends_on:
+      - "database"
+    expose:
+      - '4001'
+  # Postgres DB
+  database:
+    image: "postgres"
+    env_file:
+      - Docker/database.env
+    volumes:
+      - database-data:/var/lib/postgresql/data-inventory/
+  nginx:
+    build:
+      context: .
+      dockerfile: Docker/Nginx/Dockerfile
+    image: inventory/nginx
+    depends_on:
+      - ui
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+volumes:
+  database-data:
