@@ -6,13 +6,15 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Getter;
 
 @Entity // This tells Hibernate to make a table out of this class
-@Table(name = "inventoryItems")
+@Table(name = "inventoryItems",
+  uniqueConstraints = {@UniqueConstraint(columnNames = "name")})
 @Getter @Setter @NoArgsConstructor
 public class InventoryItem {
   @Id
