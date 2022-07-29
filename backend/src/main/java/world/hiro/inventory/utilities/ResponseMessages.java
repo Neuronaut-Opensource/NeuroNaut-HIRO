@@ -5,4 +5,6 @@ public class ResponseMessages {
     public static String failedToFindInventoryItemById = "Failed to find inventory item!";
     public static String failedToCreateInventoryItemBadRequest = "Failed to create Inventory Item, bad request!";
     public static String succesfullyDeletedInventoryItemById = "Successfully deleted inventory item.";
+    public static String failedToFindUserById = "Failed to find user by Id.";
+    public static String succesfullyDeletedUserById = "Successfully deleted user by Id.";
 }

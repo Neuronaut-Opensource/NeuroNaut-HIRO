@@ -52,6 +52,7 @@ public class InventoryController {
   }
 
   // Read all
+  // TODO add pagination
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   public List<InventoryItem> getAllInventoryItems() {
     return inventoryRepo.findAll();
@@ -88,7 +89,7 @@ public class InventoryController {
       if (req.containsKey("name")) {
         inventoryItem.setName((String) req.get("name"));
       }
-      if (req.containsKey("unit")) {
+      if (req.containsKey("category")) {
         inventoryItem.setCategory((String) req.get("category"));
       }
       if (req.containsKey("documentation")) {
