@@ -1,0 +1,177 @@
+{
+	"info": {
+		"_postman_id": "3d36d733-6a03-4471-a1ea-b5f6ef520ec7",
+		"name": "Inventory Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Enroll Users",
+			"item": [
+				{
+					"name": "Enroll new Test User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@test.com\",\n    \"password\": \"Test13-QY!\",\n    \"roles\": [\n        \"ROLE_USER\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/auth/enroll",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"auth",
+								"enroll"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Login Users",
+			"item": [
+				{
+					"name": "Login Test User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@test.com\",\n    \"password\": \"Test13-QY!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/auth/login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CRUD Items",
+			"item": [
+				{
+					"name": "Create Inventory Item",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"esp-12e\",\n    \"category\": \"microcontroller\",\n    \"documentation\": \"\",\n    \"storageLocation\": \"Surface Mount Components Bin\",\n    \"storageRoom\": \"Royce Office\",\n    \"quantity\": 14\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/inventory",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"inventory"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all Inventory Items",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/inventory",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"inventory"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}",
+					"host": [
+						"{{host}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "localhost:5001"
+		},
+		{
+			"key": "authToken",
+			"value": ""
+		}
+	]
+}
