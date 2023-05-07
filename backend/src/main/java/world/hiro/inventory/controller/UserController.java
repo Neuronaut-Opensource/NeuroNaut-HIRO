@@ -1,9 +1,5 @@
 package world.hiro.inventory.controller;
 
-import world.hiro.inventory.model.User;
-import world.hiro.inventory.repository.UserRepository;
-import world.hiro.inventory.utilities.ResponseMessages;
-
 import java.util.Date;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -21,10 +17,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import world.hiro.inventory.model.User;
+import world.hiro.inventory.repository.UserRepository;
+import world.hiro.inventory.utilities.ResponseMessages;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
-  @Autowired UserRepository userRepo;
+  @Autowired UserRepository userRepository;
 
   // Read by Id
   @PostMapping(
@@ -34,7 +34,7 @@ public class UserController {
   public ResponseEntity<Object> getUserById(@RequestBody String request) {
     JsonParser parser = JsonParserFactory.getJsonParser();
     Map<String, Object> req = parser.parseMap(request);
-    Optional<User> optionUser = userRepo.findById(Long.valueOf((int) req.get("id")));
+    Optional<User> optionUser = userRepository.findById(Long.valueOf((int) req.get("id")));
     try {
       User user = optionUser.get();
       return ResponseEntity.ok(user);
@@ -51,7 +51,7 @@ public class UserController {
   public ResponseEntity<Object> updateUserById(@RequestBody String request) {
     JsonParser parser = JsonParserFactory.getJsonParser();
     Map<String, Object> req = parser.parseMap(request);
-    Optional<User> optionUser = userRepo.findById(Long.valueOf((int) req.get("id")));
+    Optional<User> optionUser = userRepository.findById(Long.valueOf((int) req.get("id")));
     try {
       User user = optionUser.get();
       if (req.containsKey("email")) {
@@ -61,10 +61,10 @@ public class UserController {
         user.setPassword((String) req.get("password"));
       }
       user.setLastUpdated(new Date());
-      userRepo.save(user);
+      userRepository.save(user);
       return ResponseEntity.ok(user);
     } catch (NoSuchElementException e) {
-      return new ResponseEntity<>(ResponseMessages.failedToFindUserById, HttpStatus.NOT_FOUND);
+      return new ResponseEntity<>(ResponseMessages.failedToUpdateUserById, HttpStatus.NOT_FOUND);
     }
   }
 
@@ -77,10 +77,10 @@ public class UserController {
     JsonParser parser = JsonParserFactory.getJsonParser();
     Map<String, Object> req = parser.parseMap(request);
     try {
-      userRepo.deleteById(Long.valueOf((int) req.get("id")));
+      userRepository.deleteById(Long.valueOf((int) req.get("id")));
       return ResponseEntity.ok(ResponseMessages.succesfullyDeletedUserById);
     } catch (Exception e) {
-      return new ResponseEntity<>(ResponseMessages.failedToFindUserById, HttpStatus.NOT_FOUND);
+      return new ResponseEntity<>(ResponseMessages.failedToDeleteUserById, HttpStatus.NOT_FOUND);
     }
   }
 }

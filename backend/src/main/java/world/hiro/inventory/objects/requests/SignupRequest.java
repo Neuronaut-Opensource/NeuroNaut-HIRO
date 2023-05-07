@@ -14,6 +14,14 @@ public class SignupRequest {
   @Email
   private String email;
 
+  @NotBlank
+  @Size(max = 50)
+  private String householdName;
+
+  @NotBlank
+  @Size(max = 50)
+  private String inviteCode;
+
   private Set<String> role;
 
   @NotBlank

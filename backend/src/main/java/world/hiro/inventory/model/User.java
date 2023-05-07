@@ -21,6 +21,10 @@ public class User {
   private Long userId;
 
   @NotBlank
+  @Column(name = "householdId")
+  private Long householdId;
+
+  @NotBlank
   @Size(max = 50)
   @Email
   @Column(name = "email", nullable = false, unique = true)
@@ -39,7 +43,14 @@ public class User {
   @Column(name = "lastUpdated")
   private Date lastUpdated;
 
-  public User(String email, String password, Date creationTime, Date lastUpdated) {
+  public User(
+    Long householdId,
+    String email,
+    String password,
+    Date creationTime,
+    Date lastUpdated
+  ) {
+    this.householdId = householdId;
     this.email = email;
     this.password = password;
     this.creationTime = creationTime;
