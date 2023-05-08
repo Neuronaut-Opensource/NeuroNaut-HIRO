@@ -10,8 +10,9 @@ import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,21 +21,21 @@ import org.springframework.web.bind.annotation.RestController;
 import world.hiro.inventory.model.User;
 import world.hiro.inventory.repository.UserRepository;
 import world.hiro.inventory.utilities.ResponseMessages;
+import world.hiro.inventory.utilities.UserIdentityUtil;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
   @Autowired UserRepository userRepository;
 
+  @Autowired UserIdentityUtil userIdentityUtil;
+
+  @Autowired PasswordEncoder encoder;
+
   // Read by Id
-  @PostMapping(
-      consumes = MediaType.APPLICATION_JSON_VALUE,
-      produces = MediaType.APPLICATION_JSON_VALUE,
-      value = "/id")
-  public ResponseEntity<Object> getUserById(@RequestBody String request) {
-    JsonParser parser = JsonParserFactory.getJsonParser();
-    Map<String, Object> req = parser.parseMap(request);
-    Optional<User> optionUser = userRepository.findById(Long.valueOf((int) req.get("id")));
+  @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Object> getUserById() {
+    Optional<User> optionUser = userRepository.findById(userIdentityUtil.GetLoggedUserId());
     try {
       User user = optionUser.get();
       return ResponseEntity.ok(user);
@@ -51,14 +52,14 @@ public class UserController {
   public ResponseEntity<Object> updateUserById(@RequestBody String request) {
     JsonParser parser = JsonParserFactory.getJsonParser();
     Map<String, Object> req = parser.parseMap(request);
-    Optional<User> optionUser = userRepository.findById(Long.valueOf((int) req.get("id")));
+    Optional<User> optionUser = userRepository.findById(userIdentityUtil.GetLoggedUserId());
     try {
       User user = optionUser.get();
       if (req.containsKey("email")) {
         user.setEmail((String) req.get("email"));
       }
       if (req.containsKey("password")) {
-        user.setPassword((String) req.get("password"));
+        user.setPassword(encoder.encode((String) req.get("password")));
       }
       user.setLastUpdated(new Date());
       userRepository.save(user);
@@ -70,14 +71,11 @@ public class UserController {
 
   // Delete by Id
   @DeleteMapping(
-      consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE,
       value = "/id")
-  public ResponseEntity<Object> deleteUserById(@RequestBody String request) {
-    JsonParser parser = JsonParserFactory.getJsonParser();
-    Map<String, Object> req = parser.parseMap(request);
+  public ResponseEntity<Object> deleteUserById() {
     try {
-      userRepository.deleteById(Long.valueOf((int) req.get("id")));
+      userRepository.deleteById(userIdentityUtil.GetLoggedUserId());
       return ResponseEntity.ok(ResponseMessages.succesfullyDeletedUserById);
     } catch (Exception e) {
       return new ResponseEntity<>(ResponseMessages.failedToDeleteUserById, HttpStatus.NOT_FOUND);

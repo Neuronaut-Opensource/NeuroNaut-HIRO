@@ -1,9 +1,7 @@
 package world.hiro.inventory.controller;
 
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 
@@ -24,21 +22,19 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import world.hiro.inventory.model.InventoryItem;
-import world.hiro.inventory.model.User;
 import world.hiro.inventory.repository.InventoryRepository;
-import world.hiro.inventory.repository.UserRepository;
 import world.hiro.inventory.utilities.ResponseMessages;
-import world.hiro.inventory.security.services.UserDetailsImpl;
+import world.hiro.inventory.utilities.UserIdentityUtil;
 
 @RestController
 @RequestMapping("/inventory")
 public class InventoryController {
   
   @Autowired InventoryRepository inventoryRepository;
-  @Autowired UserRepository userRepository;
+
+  @Autowired UserIdentityUtil userIdentityUtil;
 
   // Create
   @PostMapping(
@@ -48,16 +44,12 @@ public class InventoryController {
     // parse request
     JsonParser parser = JsonParserFactory.getJsonParser();
     Map<String, Object> req = parser.parseMap(request);
-    // get logged in user
-    UserDetailsImpl user = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    Long userId = user.getId();
-    Optional<User> optionUser = userRepository.findById(userId);
     try {
       InventoryItem item;
       String expirationString = (String) req.get("expiration");
       item =
           new InventoryItem(
-              optionUser.get().getHouseholdId(),
+              userIdentityUtil.GetHouseholdId(),
               (String) req.get("name"),
               (String) req.get("category"),
               (String) req.get("documentation"),
@@ -78,15 +70,10 @@ public class InventoryController {
     @RequestParam( value = "pageNumber", defaultValue = "0") int pageNumber,
     @RequestParam( value = "pageSize", defaultValue = "10") int pageSize
   ) {
-    // get logged in user
-    UserDetailsImpl userImpl = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    Long userId = userImpl.getId();
-    Optional<User> optionUser = userRepository.findById(userId);
     try {
       // get all inventory for the given household
-      User user = optionUser.get();
       Pageable paging = PageRequest.of(pageNumber, pageSize);
-      return ResponseEntity.ok(inventoryRepository.findAllByHouseholdId(user.getHouseholdId(), paging));
+      return ResponseEntity.ok(inventoryRepository.findAllByHouseholdId(userIdentityUtil.GetHouseholdId(), paging));
     } catch (NoSuchElementException e) {
       return new ResponseEntity<>(ResponseMessages.failedToFindAllInventoryItems, HttpStatus.NOT_FOUND);
     }
@@ -101,14 +88,9 @@ public class InventoryController {
     // parse the request
     JsonParser parser = JsonParserFactory.getJsonParser();
     Map<String, Object> req = parser.parseMap(request);
-    // get logged in user
-    UserDetailsImpl userImpl = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    Long userId = userImpl.getId();
-    Optional<User> optionUser = userRepository.findById(userId);
     try {
       // get the inventory item by id if it belongs to the given household
-      User user = optionUser.get();
-      InventoryItem inventoryItem = inventoryRepository.findByIdAndHouseholdId(Long.valueOf((int) req.get("id")), user.getHouseholdId());
+      InventoryItem inventoryItem = inventoryRepository.findByIdAndHouseholdId(Long.valueOf((int) req.get("id")), userIdentityUtil.GetHouseholdId());
       return ResponseEntity.ok(inventoryItem);
     } catch (NoSuchElementException e) {
       return new ResponseEntity<>(ResponseMessages.failedToFindInventoryItemById, HttpStatus.NOT_FOUND);
@@ -124,16 +106,11 @@ public class InventoryController {
     // parse the request
     JsonParser parser = JsonParserFactory.getJsonParser();
     Map<String, Object> req = parser.parseMap(request);
-    // get logged in user
-    UserDetailsImpl userImpl = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    Long userId = userImpl.getId();
-    Optional<User> optionUser = userRepository.findById(userId);
     try {
       // build pageable
       Pageable paging = PageRequest.of((int) req.get("pageNumber"), (int) req.get("pageSize"));
       // get by name containing and householdId
-      User user = optionUser.get();
-      Page<InventoryItem> pageInventoryItem = inventoryRepository.findByNameContainingAndHouseholdId((String) req.get("name"), user.getHouseholdId(), paging);
+      Page<InventoryItem> pageInventoryItem = inventoryRepository.findByNameContainingAndHouseholdId((String) req.get("name"), userIdentityUtil.GetHouseholdId(), paging);
       if (pageInventoryItem.getTotalElements() > 0) {
         return ResponseEntity.ok(pageInventoryItem);
       } else {
@@ -153,16 +130,11 @@ public class InventoryController {
     // parse the request
     JsonParser parser = JsonParserFactory.getJsonParser();
     Map<String, Object> req = parser.parseMap(request);
-    // get logged in user
-    UserDetailsImpl userImpl = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    Long userId = userImpl.getId();
-    Optional<User> optionUser = userRepository.findById(userId);
     try {
       // build pageable
       Pageable paging = PageRequest.of((int) req.get("pageNumber"), (int) req.get("pageSize"));
       // get by category containing and householdId
-      User user = optionUser.get();
-      Page<InventoryItem> pageInventoryItem = inventoryRepository.findByCategoryContainingAndHouseholdId((String) req.get("category"), user.getHouseholdId(), paging);
+      Page<InventoryItem> pageInventoryItem = inventoryRepository.findByCategoryContainingAndHouseholdId((String) req.get("category"), userIdentityUtil.GetHouseholdId(), paging);
       if (pageInventoryItem.getTotalElements() > 0) {
         return ResponseEntity.ok(pageInventoryItem);
       } else {
@@ -182,16 +154,11 @@ public class InventoryController {
     // parse the request
     JsonParser parser = JsonParserFactory.getJsonParser();
     Map<String, Object> req = parser.parseMap(request);
-    // get logged in user
-    UserDetailsImpl userImpl = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    Long userId = userImpl.getId();
-    Optional<User> optionUser = userRepository.findById(userId);
     try {
       // build pageable
       Pageable paging = PageRequest.of((int) req.get("pageNumber"), (int) req.get("pageSize"));
       // get by storage location containing and householdId
-      User user = optionUser.get();
-      Page<InventoryItem> pageInventoryItem = inventoryRepository.findByStorageLocationContainingAndHouseholdId((String) req.get("location"), user.getHouseholdId(), paging);
+      Page<InventoryItem> pageInventoryItem = inventoryRepository.findByStorageLocationContainingAndHouseholdId((String) req.get("location"), userIdentityUtil.GetHouseholdId(), paging);
       if (pageInventoryItem.getTotalElements() > 0) {
         return ResponseEntity.ok(pageInventoryItem);
       } else {
@@ -211,16 +178,11 @@ public class InventoryController {
     // parse the request
     JsonParser parser = JsonParserFactory.getJsonParser();
     Map<String, Object> req = parser.parseMap(request);
-    // get logged in user
-    UserDetailsImpl userImpl = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    Long userId = userImpl.getId();
-    Optional<User> optionUser = userRepository.findById(userId);
     try {
       // build pageable
       Pageable paging = PageRequest.of((int) req.get("pageNumber"), (int) req.get("pageSize"));
       // get by storage room containing and householdId
-      User user = optionUser.get();
-      Page<InventoryItem> pageInventoryItem = inventoryRepository.findByStorageRoomContainingAndHouseholdId((String) req.get("room"), user.getHouseholdId(), paging);
+      Page<InventoryItem> pageInventoryItem = inventoryRepository.findByStorageRoomContainingAndHouseholdId((String) req.get("room"), userIdentityUtil.GetHouseholdId(), paging);
       if (pageInventoryItem.getTotalElements() > 0) {
         return ResponseEntity.ok(pageInventoryItem);
       } else {
@@ -240,10 +202,6 @@ public class InventoryController {
     // parse the request
     JsonParser parser = JsonParserFactory.getJsonParser();
     Map<String, Object> req = parser.parseMap(request);
-    // get logged in user
-    UserDetailsImpl userImpl = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    Long userId = userImpl.getId();
-    Optional<User> optionUser = userRepository.findById(userId);
     // build pageable
     Pageable paging = PageRequest.of((int) req.get("pageNumber"), (int) req.get("pageSize"));
     // get start & end dates
@@ -251,11 +209,10 @@ public class InventoryController {
     String endDate = (String) req.get("endDate");
     try {
       // get expired items between date range and householdId
-      User user = optionUser.get();
       Page<InventoryItem> pageInventoryItem = inventoryRepository.findByExpirationBetweenAndHouseholdId(
         new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startDate),
         new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate),
-        user.getHouseholdId(),
+        userIdentityUtil.GetHouseholdId(),
         paging
       );
       if (pageInventoryItem.getTotalElements() > 0) {
@@ -277,16 +234,11 @@ public class InventoryController {
     @RequestParam( value = "pageNumber", defaultValue = "0") int pageNumber,
     @RequestParam( value = "pageSize", defaultValue = "10") int pageSize
   ) {
-    // get logged in user
-    UserDetailsImpl userImpl = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    Long userId = userImpl.getId();
-    Optional<User> optionUser = userRepository.findById(userId);
     // build pageable
     Pageable paging = PageRequest.of(pageNumber, pageSize);
     try {
       // get expired items within a householdId
-      User user = optionUser.get();
-      Page<InventoryItem> pageInventoryItem = inventoryRepository.findByExpirationBeforeAndHouseholdId(new Date(), user.getHouseholdId(), paging);
+      Page<InventoryItem> pageInventoryItem = inventoryRepository.findByExpirationBeforeAndHouseholdId(new Date(), userIdentityUtil.GetHouseholdId(), paging);
       return ResponseEntity.ok(pageInventoryItem);
     } catch (Exception e) {
       return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -302,14 +254,9 @@ public class InventoryController {
     // parse teh request
     JsonParser parser = JsonParserFactory.getJsonParser();
     Map<String, Object> req = parser.parseMap(request);
-    // get logged in user
-    UserDetailsImpl userImpl = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    Long userId = userImpl.getId();
-    Optional<User> optionUser = userRepository.findById(userId);
     try {
       // get the item to update
-      User user = optionUser.get();
-      InventoryItem inventoryItem = inventoryRepository.findByIdAndHouseholdId(Long.valueOf((int) req.get("id")), user.getHouseholdId());
+      InventoryItem inventoryItem = inventoryRepository.findByIdAndHouseholdId(Long.valueOf((int) req.get("id")), userIdentityUtil.GetHouseholdId());
       if (req.containsKey("name")) {
         inventoryItem.setName((String) req.get("name"));
       }
