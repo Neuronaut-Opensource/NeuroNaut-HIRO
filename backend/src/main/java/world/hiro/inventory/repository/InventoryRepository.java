@@ -16,4 +16,5 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
   Page<InventoryItem> findByStorageRoomContainingAndHouseholdId(String storageRoom, Long householdId, Pageable pageable);
   Page<InventoryItem> findByExpirationBetweenAndHouseholdId(Date testStartDate, Date testEndDate, Long householdId, Pageable pageable);
   Page<InventoryItem> findByExpirationBeforeAndHouseholdId(Date testDate, Long householdId, Pageable pageable);
+  long deleteByHouseholdId(Long householdId);
 }
