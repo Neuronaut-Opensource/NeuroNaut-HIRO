@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,9 +43,12 @@ public class AuthenticationController {
   @Autowired JwtUtils jwtUtils;
   @Autowired InviteCodeGenerator inviteCodeGenerator;
 
-  @PostMapping("/login")
+  @PostMapping(
+    consumes = MediaType.APPLICATION_JSON_VALUE,
+    produces = MediaType.APPLICATION_JSON_VALUE,
+    value = "/login"
+  )
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-
     Authentication authentication =
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
@@ -59,9 +63,12 @@ public class AuthenticationController {
         new JwtResponse(jwt, userDetails.getId(), userDetails.getEmail()));
   }
 
-  @PostMapping("/enroll")
+  @PostMapping(
+    consumes = MediaType.APPLICATION_JSON_VALUE,
+    produces = MediaType.APPLICATION_JSON_VALUE,
+    value = "/enroll"
+  )
   public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-
     if (userRepository.existsByEmail(signUpRequest.getEmail())) {
       return ResponseEntity.badRequest()
           .body(ResponseMessages.emailAlreadyInUse);
@@ -81,9 +88,12 @@ public class AuthenticationController {
     return ResponseEntity.ok(ResponseMessages.enrolled(inviteCode));
   }
 
-  @PostMapping("/enrollInvite")
+  @PostMapping(
+    consumes = MediaType.APPLICATION_JSON_VALUE,
+    produces = MediaType.APPLICATION_JSON_VALUE,
+    value = "/enroll/invite"
+  )
   public ResponseEntity<?> registerUserByInvite(@Valid @RequestBody SignupRequest signUpRequest) {
-
     if (userRepository.existsByEmail(signUpRequest.getEmail())) {
       return ResponseEntity.badRequest()
           .body(ResponseMessages.emailAlreadyInUse);

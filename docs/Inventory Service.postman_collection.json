@@ -17,7 +17,9 @@
 								"exec": [
 									"pm.test(\"Status code is 200\", () => {\r",
 									"  pm.expect(pm.response.code).to.eql(200);\r",
-									"});"
+									"});\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.collectionVariables.set(\"inviteCode\", responseJson.inviteCode);"
 								],
 								"type": "text/javascript"
 							}
@@ -28,7 +30,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"test@test.com\",\n    \"password\": \"Test13-QY!\",\n    \"roles\": [\n        \"ROLE_USER\"\n    ]\n}",
+							"raw": "{\n    \"email\": \"test@test.com\",\n    \"password\": \"Test13-QY!\",\n    \"householdName\": \"Hiro Home\",\n    \"roles\": [\n        \"ROLE_USER\"\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -43,6 +45,47 @@
 							"path": [
 								"auth",
 								"enroll"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Enroll new Test User w/ Invite",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.expect(pm.response.code).to.eql(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test1@test.com\",\n    \"password\": \"Test13-QY!\",\n    \"householdName\": \"Hiro Home\",\n    \"inviteCode\": \"{{inviteCode}}\",\n    \"roles\": [\n        \"ROLE_USER\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/auth/enroll/invite",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"auth",
+								"enroll",
+								"invite"
 							]
 						}
 					},
@@ -609,6 +652,66 @@
 			]
 		},
 		{
+			"name": "Households",
+			"item": [
+				{
+					"name": "Get Household Info",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/household",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"household"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Household Name",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Hiro Home\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/household",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"household"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Users",
 			"item": [
 				{
@@ -694,7 +797,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete User Info",
+					"name": "Delete User",
 					"event": [
 						{
 							"listen": "test",
@@ -792,6 +895,11 @@
 		{
 			"key": "itemId",
 			"value": ""
+		},
+		{
+			"key": "inviteCode",
+			"value": "",
+			"type": "default"
 		}
 	]
 }

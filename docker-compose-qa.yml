@@ -1,5 +1,5 @@
 services:
-  # UI for admins to manage keys, users, etc
+  # UI
   ui:
     build:
       context: .
@@ -10,7 +10,7 @@ services:
       - "backend"
     expose:
       - '5000'
-  # Serves as a UI -> Kafka bridge and validates users, ensure published events match system spec, etc.
+  # Backend
   backend:
     build:
       context: .

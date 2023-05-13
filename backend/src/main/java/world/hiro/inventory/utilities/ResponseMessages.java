@@ -21,5 +21,7 @@ public class ResponseMessages {
     // AuthenticationController
     public static String emailAlreadyInUse = "Failed to enroll new user. Email is already in use.";
     public static String invalidInviteCode = "The invite code used to enroll is invalid.";
-    public static String enrolled (String inviteCode) { return "User enrolled successfully with invite code: " + inviteCode; }
+    public static String enrolled (String inviteCode) { return "{\n\"status\": \"User enrolled successfully with invite code.\",\n\"inviteCode\": \"" + inviteCode + "\"\n}"; }
+    // HouseholdController
+    public static String failedToGetHouseholdInfo = "Failed to get household info.";
 }
