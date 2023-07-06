@@ -1,21 +1,36 @@
 {
 	"info": {
-		"_postman_id": "3d36d733-6a03-4471-a1ea-b5f6ef520ec7",
+		"_postman_id": "41a467c4-3c6f-4648-a81f-dd855e2acad6",
 		"name": "Inventory Service",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Enroll Users",
+			"name": "Authentication",
 			"item": [
 				{
 					"name": "Enroll new Test User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.collectionVariables.set(\"inviteCode\", responseJson.inviteCode);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"test@test.com\",\n    \"password\": \"Test13-QY!\",\n    \"roles\": [\n        \"ROLE_USER\"\n    ]\n}",
+							"raw": "{\n    \"email\": \"test@test.com\",\n    \"password\": \"Test13-QY!\",\n    \"householdName\": \"Hiro Home\",\n    \"roles\": [\n        \"ROLE_USER\"\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -34,14 +49,65 @@
 						}
 					},
 					"response": []
-				}
-			]
-		},
-		{
-			"name": "Login Users",
-			"item": [
+				},
+				{
+					"name": "Enroll new Test User w/ Invite",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.expect(pm.response.code).to.eql(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test1@test.com\",\n    \"password\": \"Test13-QY!\",\n    \"householdName\": \"Hiro Home\",\n    \"inviteCode\": \"{{inviteCode}}\",\n    \"roles\": [\n        \"ROLE_USER\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/auth/enroll/invite",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"auth",
+								"enroll",
+								"invite"
+							]
+						}
+					},
+					"response": []
+				},
 				{
 					"name": "Login Test User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.collectionVariables.set(\"authToken\", responseJson.token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -70,10 +136,26 @@
 			]
 		},
 		{
-			"name": "CRUD Items",
+			"name": "InventoryItems",
 			"item": [
 				{
 					"name": "Create Inventory Item",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.collectionVariables.set(\"itemId\", responseJson.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [
@@ -85,7 +167,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"esp-12e\",\n    \"category\": \"microcontroller\",\n    \"documentation\": \"\",\n    \"storageLocation\": \"Surface Mount Components Bin\",\n    \"storageRoom\": \"Royce Office\",\n    \"quantity\": 14\n}",
+							"raw": "{\n    \"name\": \"shrimp\",\n    \"category\": \"food\",\n    \"documentation\": \"\",\n    \"storageLocation\": \"Fridge\",\n    \"storageRoom\": \"Kitchen\",\n    \"quantity\": 1,\n    \"expiration\": \"2023-05-04 00:00:00\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -106,6 +188,19 @@
 				},
 				{
 					"name": "Get all Inventory Items",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.expect(pm.response.code).to.eql(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [
@@ -116,12 +211,623 @@
 							}
 						],
 						"url": {
-							"raw": "{{host}}/inventory",
+							"raw": "{{host}}/inventory?pageNumber=0&pageSize=10",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"inventory"
+							],
+							"query": [
+								{
+									"key": "pageNumber",
+									"value": "0"
+								},
+								{
+									"key": "pageSize",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Inventory Item by Id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.expect(pm.response.code).to.eql(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": {{itemId}},\n    \"pageNumber\": 0,\n    \"pageSize\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/inventory/id",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"inventory",
+								"id"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Inventory Item by Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.expect(pm.response.code).to.eql(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"shri\",\n    \"pageNumber\": 0,\n    \"pageSize\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/inventory/name",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"inventory",
+								"name"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Inventory Item by Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.expect(pm.response.code).to.eql(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"category\": \"food\",\n    \"pageNumber\": 0,\n    \"pageSize\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/inventory/category",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"inventory",
+								"category"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Inventory Item by Location",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.expect(pm.response.code).to.eql(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"location\": \"Fridge\",\n    \"pageNumber\": 0,\n    \"pageSize\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/inventory/location",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"inventory",
+								"location"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Inventory Item by Room",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.expect(pm.response.code).to.eql(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"room\": \"Kitchen\",\n    \"pageNumber\": 0,\n    \"pageSize\": 1\n}4",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/inventory/room",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"inventory",
+								"room"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Inventory Item by Expiration Range",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.expect(pm.response.code).to.eql(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"startDate\": \"2023-05-02 00:00:00\",\n    \"endDate\": \"2023-07-07 00:00:00\",\n    \"pageNumber\": 0,\n    \"pageSize\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/inventory/expired",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"inventory",
+								"expired"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show all Expired Items",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.expect(pm.response.code).to.eql(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"startDate\": \"2023-07-05 00:00:00\",\n    \"endDate\": \"2023-07-07 00:00:00\",\n    \"pageNumber\": 0,\n    \"pageSize\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/inventory/expired",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"inventory",
+								"expired"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Inventory Item",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.expect(pm.response.code).to.eql(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": {{itemId}},\n    \"name\": \"shrimp\",\n    \"category\": \"food\",\n    \"documentation\": \"\",\n    \"storageLocation\": \"Fridge\",\n    \"storageRoom\": \"Kitchen\",\n    \"quantity\": 10,\n    \"expiration\": \"2023-05-04 00:00:00\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/inventory/id",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"inventory",
+								"id"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Inventory Item",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.expect(pm.response.code).to.eql(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": {{itemId}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/inventory/id",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"inventory",
+								"id"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Households",
+			"item": [
+				{
+					"name": "Get Household Info",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/household",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"household"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Household Name",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Hiro Home\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/household",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"household"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get User Info",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.expect(pm.response.code).to.eql(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/user",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Info",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.expect(pm.response.code).to.eql(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"test@test.com\",\r\n    \"password\": \"test123!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/user/id",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								"id"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.expect(pm.response.code).to.eql(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/user/id",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								"id"
 							]
 						}
 					},
@@ -131,6 +837,19 @@
 		},
 		{
 			"name": "Status",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", () => {\r",
+							"  pm.expect(pm.response.code).to.eql(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -171,7 +890,16 @@
 		},
 		{
 			"key": "authToken",
+			"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QHRlc3QuY29tIiwiaWF0IjoxNjgzNDgwNzQ2LCJleHAiOjE2ODM0ODEzNDZ9.lzLZCWIgwjJnEbxZL4fHEQPBf98CPzCcZjlqbwd9Xxttu3mKH2O-Pok79eI1iOHU62coQEplkNoKMAdhPRQ4Tw"
+		},
+		{
+			"key": "itemId",
 			"value": ""
+		},
+		{
+			"key": "inviteCode",
+			"value": "",
+			"type": "default"
 		}
 	]
 }

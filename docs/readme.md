@@ -42,3 +42,9 @@ then run the following command
 ```
 docker-compose -f docker-compose-qa.yml up -d --build
 ```
+
+If you are running the QA environment on a dedicated server add an entry into your dns resolver to map the following to the correct IP;
+```
+inventory.hiro.world
+api.inventory.hiro.world
+```
