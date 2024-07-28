@@ -29,5 +29,15 @@ services:
       - Docker/database.env
     volumes:
       - database-data:/var/lib/postgresql/data-inventory/
+  # Restfox
+  restfox:
+    image: "flawiddsouza/restfox:0.17.0"
+    ports:
+      - '4004:4004'
+    expose:
+      - '4004'
+    volumes:
+      - restfox-data:/var/lib/postgresql/data-inventory/
 volumes:
   database-data:
+  restfox-data:
